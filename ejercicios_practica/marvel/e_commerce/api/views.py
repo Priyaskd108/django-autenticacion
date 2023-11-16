@@ -22,9 +22,69 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 from rest_framework.views import APIView
-
+from rest_framework import generics, permissions
 from e_commerce.api.serializers import *
-from e_commerce.models import Comic
+from e_commerce.models import Comic, WishList
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
+from django.contrib.auth import authenticate
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+
+from rest_framework.authentication import TokenAuthentication
+from rest_framework import generics
+
+class GetWishListAPIView(generics.RetrieveAPIView):
+    queryset = WishList.objects.all()
+    serializer_class = WishListSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'pk'
+
+
+class PostWishListAPIView(generics.CreateAPIView):
+   queryset = WishList.objects.all()
+   serializer_class = WishListSerializer
+   permission_classes = [permissions.IsAuthenticated & permissions.IsAdminUser]
+
+class UpdateWishListAPIView(generics.UpdateAPIView):
+   queryset = WishList.objects.all()
+   serializer_class = WishListSerializer
+   permission_classes = [permissions.IsAuthenticated | permissions.IsAdminUser]
+   lookup_field = 'pk'
+
+class DeleteWishListAPIView(generics.DestroyAPIView):
+   queryset = WishList.objects.all()
+   serializer_class = WishListSerializer
+   permission_classes = [permissions.IsAdminUser]
+   lookup_field = 'pk'
+   
+class UpdateWishListAPIView(generics.UpdateAPIView):
+   queryset = WishList.objects.all()
+   serializer_class = WishListSerializer
+   permission_classes = [permissions.IsAuthenticated | permissions.IsAdminUser]
+   lookup_field = 'pk'
+
+   def put(self, request, *args, **kwargs):
+       return self.partial_update(request, *args, **kwargs)
+
+
+
+
+
+class UserLoginAPIView(ObtainAuthToken):
+   def post(self, request):
+       username = request.data.get('username')
+       password = request.data.get('password')
+       user = authenticate(username=username, password=password)
+
+       if user is not None:
+           token, created = Token.objects.get_or_create(user=user)
+           return Response({'token': token.key}, status=status.HTTP_200_OK)
+       else:
+           return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(http_method_names=['GET'])

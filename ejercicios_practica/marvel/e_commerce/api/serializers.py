@@ -9,6 +9,41 @@ from rest_framework.authtoken.models import Token
 
 class ComicSerializer(serializers.ModelSerializer):
     # new_field = serializers.SerializerMethodField()
+
+    # def get_new_field(self, obj):
+    #     return {'message': 'Acá puedo devolver más información.'}
+
+    class Meta:
+        model = Comic
+        fields = '__all__'
+        # fields = ('marvel_id', 'title', 'new_field')
+        read_only_fields = ('id',)
+
+
+# TODO: Realizar el serializador para el modelo de User y WishList
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+class WishListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WishList
+        fields = '__all__'
+
+class UserLoginSerializer(serializers.Serializer):
+   username = serializers.CharField()
+   password = serializers.CharField()
+
+class TokenSerializer(serializers.ModelSerializer):
+   class Meta:
+       model = Token
+       fields = ['user', 'token']
+
+
+class ComicSerializer(serializers.ModelSerializer):
+    # new_field = serializers.SerializerMethodField()
     
     # def get_new_field(self, obj):
     #     return {'hola':10}

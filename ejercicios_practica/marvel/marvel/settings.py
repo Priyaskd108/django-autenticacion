@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-$dpguq$#6!6dw($(qd6))7qcw%%#a=sc!-!7t!_av9%5*(q=uf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
 
 
 # Application definition
@@ -40,10 +41,11 @@ BASE_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg'
 ]
 
 # Acá van las apps de 3ros que necesitamos agregar para que Django las encuentre.
-THIRD_APPS = ['rest_framework']
+THIRD_APPS = ['rest_framework','rest_framework.authtoken']
 
 # Acá van las apps que creamos nosotros.
 LOCAL_APPS = ['e_commerce']
@@ -65,10 +67,17 @@ INSTALLED_APPS = BASE_APPS + THIRD_APPS + LOCAL_APPS
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-    ),
+     #    'rest_framework.permissions.AllowAny',
+            'rest_framework.authentication.TokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
+            ),
+            'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+            'rest_framework.authentication.BasicAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
+            'rest_framework.authtoken'
+),
 }
-
 
 
 MIDDLEWARE = [
@@ -191,3 +200,47 @@ VERDE = "\033[;32m"
 
 # NOTE: Para manejo de sesión.
 LOGIN_URL = '/admin/login'
+
+# API DOCS Settings:
+# https://drf-yasg.readthedocs.io/en/stable/settings.html
+LOGOUT_URL = '/admin/logout'
+# Acá van todas las configuraciones para la UI de Swagger.
+SWAGGER_SETTINGS = {
+# Seteo los tipos de Authenticaciones que puedo utilizar en
+# Swagger.
+# https://drf-yasg.readthedocs.io/en/stable/settings.html#security-definitions-settings
+'SECURITY_DEFINITIONS': {
+# HTTP Basic Authentication:
+'basic': {
+'type': 'basic'
+},
+# Token Authentication:
+'DRF Token': {
+'type': 'apiKey',
+'name': 'Authorization',
+'in': 'header'
+}
+},
+"USE_SESSION_AUTH": True,
+'LOGIN_URL': LOGIN_URL,
+'LOGOUT_URL': LOGOUT_URL
+}
+# Acá van todas las configuraciones para la UI de Redoc.
+REDOC_SETTINGS = {
+'LAZY_RENDERING': False,
+}
+TEMPLATES = [
+{
+'BACKEND': 'django.template.backends.django.DjangoTemplates',
+'DIRS': [os.path.join(BASE_DIR,'templates')], # ¡AGREGAMOS ESTA LINEA!
+'APP_DIRS': True,
+'OPTIONS': {
+'context_processors': [
+'django.template.context_processors.debug',
+'django.template.context_processors.request',
+'django.contrib.auth.context_processors.auth',
+'django.contrib.messages.context_processors.messages',
+],
+},
+},
+]
